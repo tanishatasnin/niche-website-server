@@ -9,7 +9,7 @@ const { MongoClient } = require('mongodb');
 // ____ secuer pass ___ 
 require('dotenv').config()
 const app =express();
-const port =5000;
+const port = process.env.PORT || 5000;
  
 // ____ middleware__
 app.use(cors());
