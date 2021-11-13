@@ -25,17 +25,22 @@ async function run (){
     try{
 await client.connect();
 console.log('database connected successfully');
+// ++++++++++++++++++++++++++ database and collections ++++++++++ 
+
 const database = client.db('essential_oils');
 const productsCollection = database.collection('products');
 const customerCullection =database.collection('customers');
 const usersCollection =database.collection('users');
-            //    _____________ get api ____ 
+const reviewsCollection =database.collection('reviews');
+
+// ++++++++++++++++++++++++ close collection +++++++++++++++ 
+            //    _____________ get api Products ____ 
                app.get('/products', async(req,res)=>{
                 const cursor = productsCollection.find({});
                 const products =await cursor.toArray();
                 res.send(products);
             })
-            //  post api
+            //  post api products
             app.post('/products', async(req,res)=>{
                 const product= req.body;
                 console.log('hit api ',product);
@@ -45,7 +50,8 @@ const usersCollection =database.collection('users');
  console.log(result);
  res.json(result)
 })
-                // delete product
+                // delete product from manage product
+
             app.delete('/products/:id', async(req,res)=>{
                 const id =req.params.id;
                 const query ={_id:ObjectId(id)};
@@ -55,17 +61,24 @@ const usersCollection =database.collection('users');
          })
 
 
+ //   ___________ Find one ___ 
+ app.get ('/products/:id',async(req,res)=>{
+    const id = req.params.id;
+    const query = { _id: ObjectId(id) };
+    const product = await productsCollection.findOne(query);
+    res.json(product);
+
+})
 
 
 
            
          
-       //  -____________ CUSTOMERS get _________ 
+       //  -____________  Get api CUSTOMERS  _________ 
        
         app.get('/customers', async (req, res) => {
             const customerEmail = req.query.customerEmail;
-            // const date = new Date(req.query.date).toLocaleDateString();
-            // date: date
+            
             const query = { email: customerEmail }
 console.log(query);
             const cursor =  customerCullection.find(query);
@@ -74,14 +87,20 @@ console.log(query);
             res.json(customers);
         })
 
-//  -____________ CUSTOMERS POST _________ 
+//  -____________ CUSTOMERS POST API _________ 
 app.post('/customers', async (req, res) => {
     const customer = req.body;
     const result = await customerCullection.insertOne(customer);
     console.log(customer);
     res.json(result)
 });
+app.delete('/customers/:id', async(req,res)=>{
+    const id =req.params.id;
+    const query ={_id:ObjectId(id)};
+    const result =await customerCullection.deleteOne(query);
+    res.json(result);
 
+})
 // _______________________________________________________________________________________________
 
 app.post("/customers", async (req, res) => {
@@ -91,7 +110,7 @@ app.post("/customers", async (req, res) => {
 
 //  my order
 
-app.get("/customers/:customerEmail", async (req, res) => {
+app.get("/customers/:email", async (req, res) => {
   console.log(req.params.customerEmail);
   const result = await customerCullection
     .find({customerEmail: req.params.email })
@@ -100,16 +119,34 @@ app.get("/customers/:customerEmail", async (req, res) => {
 });
 
 // _________________________________________________________________________________________
+// +++++++++++++++ reviews ++++++++++++ 
+app.get('/reviews', async(req,res)=>{
+    const cursor = reviewsCollection.find({});
+    const reviews =await cursor.toArray();
+    res.send(reviews);
+})
 
 
-        //   ___________ Find one ___ 
-         app.get ('/products/:id',async(req,res)=>{
-            const id = req.params.id;
-            const query = { _id: ObjectId(id) };
-            const product = await productsCollection.findOne(query);
-            res.json(product);
+//  post api products
+app.post('/reviews', async(req,res)=>{
+    const review= req.body;
+    console.log('hit api ',review);
+
+    
+const result= await reviewsCollection.insertOne(review);
+console.log(result);
+res.json(result)
+})
+
+
+    //     //   ___________ Find one ___ 
+    //      app.get ('/products/:id',async(req,res)=>{
+    //         const id = req.params.id;
+    //         const query = { _id: ObjectId(id) };
+    //         const product = await productsCollection.findOne(query);
+    //         res.json(product);
      
-     })
+    //  })
 
 // __________________ user __________ 
      app.post('/users', async (req, res) => {
